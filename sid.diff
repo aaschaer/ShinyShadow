@@ -1,0 +1,287 @@
+diff --git a/Source/GUI/Predictor/PredictorWidget.cpp b/Source/GUI/Predictor/PredictorWidget.cpp
+index 06f029a..341f764 100755
+--- a/Source/GUI/Predictor/PredictorWidget.cpp
++++ b/Source/GUI/Predictor/PredictorWidget.cpp
+@@ -34,7 +34,7 @@ void PredictorWidget::filterUnwanted(const bool filterUnwanted)
+   for (int i = 0; i < m_tblStartersPrediction->rowCount(); i++)
+   {
+     bool showRow =
+-        !filterUnwanted || m_tblStartersPrediction->item(i, 2)->background().color().name() ==
++        !filterUnwanted || m_tblStartersPrediction->item(i, 3)->background().color().name() ==
+                                greenBrush.color().name();
+ 
+     m_tblStartersPrediction->setRowHidden(i, !showRow);
+@@ -103,6 +103,7 @@ void PredictorWidget::switchGame(const GUICommon::gameSelection game)
+   m_tblHeaderLabels.clear();
+   m_tblHeaderLabels.append(tr("Seed"));
+   m_tblHeaderLabels.append(tr("Trainer ID"));
++  m_tblHeaderLabels.append(tr("Secret ID"));
+   m_tblHeaderLabels.append(tr("Frame (seconds)"));
+   for (int i = 0; i < SPokemonRNG::getCurrentSystem()->getNbrStartersPrediction(); i++)
+   {
+@@ -291,10 +292,13 @@ void PredictorWidget::updateGUI(const GUICommon::gameSelection game)
+     m_tblStartersPrediction->setItem(i, 1,
+                                      new QTableWidgetItem(QString("%1").arg(
+                                          m_startersPrediction[i].trainerId, 5, 10, QChar('0'))));
++    m_tblStartersPrediction->setItem(i, 2,
++                                     new QTableWidgetItem(QString("%1").arg(
++                                         m_startersPrediction[i].secretId, 5, 10, QChar('0'))));
+ 
+     if (m_startersPrediction[i].frameNumber == -1)
+     {
+-      m_tblStartersPrediction->setItem(i, 2, new QTableWidgetItem("ALL FRAMES (N/A)"));
++      m_tblStartersPrediction->setItem(i, 3, new QTableWidgetItem("ALL FRAMES (N/A)"));
+     }
+     else
+     {
+@@ -303,12 +307,12 @@ void PredictorWidget::updateGUI(const GUICommon::gameSelection game)
+       if (i == 0)
+       {
+         m_tblStartersPrediction->setItem(
+-            i, 2, new QTableWidgetItem(QString::number(frameNumberWithDelay) + " (frame perfect)"));
++            i, 3, new QTableWidgetItem(QString::number(frameNumberWithDelay) + " (frame perfect)"));
+       }
+       else
+       {
+         m_tblStartersPrediction->setItem(
+-            i, 2,
++            i, 3,
+             new QTableWidgetItem(QString::number(frameNumberWithDelay) + " (" +
+                                  QString::number(frameNumberWithDelay / 60.0) + ")"));
+       }
+@@ -323,77 +327,77 @@ void PredictorWidget::updateGUI(const GUICommon::gameSelection game)
+       BaseRNGSystem::PokemonProperties starter = m_startersPrediction[i].starters[j];
+ 
+       m_tblStartersPrediction->setItem(
+-          i, 3 + j * nbrColPerStarter,
++          i, 4 + j * nbrColPerStarter,
+           new QTableWidgetItem(QString::number(starter.hpIV) + " (" +
+                                QString::number(starter.hpStartingStat) + ")"));
+       if (starter.hpIV >= SConfig::getInstance().getMinHpIv(startersSettings[j]))
+       {
+-        m_tblStartersPrediction->item(i, 3 + j * nbrColPerStarter)->setBackground(greenBrush);
++        m_tblStartersPrediction->item(i, 4 + j * nbrColPerStarter)->setBackground(greenBrush);
+       }
+       else
+       {
+-        m_tblStartersPrediction->item(i, 3 + j * nbrColPerStarter)->setBackground(redBrush);
++        m_tblStartersPrediction->item(i, 4 + j * nbrColPerStarter)->setBackground(redBrush);
+         passAllFilters = false;
+       }
+ 
+-      m_tblStartersPrediction->setItem(i, 4 + j * nbrColPerStarter,
++      m_tblStartersPrediction->setItem(i, 5 + j * nbrColPerStarter,
+                                        new QTableWidgetItem(QString::number(starter.atkIV)));
+       if (starter.atkIV >= SConfig::getInstance().getMinAtkIv(startersSettings[j]))
+       {
+-        m_tblStartersPrediction->item(i, 4 + j * nbrColPerStarter)->setBackground(greenBrush);
++        m_tblStartersPrediction->item(i, 5 + j * nbrColPerStarter)->setBackground(greenBrush);
+       }
+       else
+       {
+-        m_tblStartersPrediction->item(i, 4 + j * nbrColPerStarter)->setBackground(redBrush);
++        m_tblStartersPrediction->item(i, 5 + j * nbrColPerStarter)->setBackground(redBrush);
+         passAllFilters = false;
+       }
+-      m_tblStartersPrediction->setItem(i, 5 + j * nbrColPerStarter,
++      m_tblStartersPrediction->setItem(i, 6 + j * nbrColPerStarter,
+                                        new QTableWidgetItem(QString::number(starter.defIV)));
+       if (starter.defIV >= SConfig::getInstance().getMinDefIv(startersSettings[j]))
+       {
+-        m_tblStartersPrediction->item(i, 5 + j * nbrColPerStarter)->setBackground(greenBrush);
++        m_tblStartersPrediction->item(i, 6 + j * nbrColPerStarter)->setBackground(greenBrush);
+       }
+       else
+       {
+-        m_tblStartersPrediction->item(i, 5 + j * nbrColPerStarter)->setBackground(redBrush);
++        m_tblStartersPrediction->item(i, 6 + j * nbrColPerStarter)->setBackground(redBrush);
+         passAllFilters = false;
+       }
+-      m_tblStartersPrediction->setItem(i, 6 + j * nbrColPerStarter,
++      m_tblStartersPrediction->setItem(i, 7 + j * nbrColPerStarter,
+                                        new QTableWidgetItem(QString::number(starter.spAtkIV)));
+       if (starter.spAtkIV >= SConfig::getInstance().getMinSpAtkIv(startersSettings[j]))
+       {
+-        m_tblStartersPrediction->item(i, 6 + j * nbrColPerStarter)->setBackground(greenBrush);
++        m_tblStartersPrediction->item(i, 7 + j * nbrColPerStarter)->setBackground(greenBrush);
+       }
+       else
+       {
+-        m_tblStartersPrediction->item(i, 6 + j * nbrColPerStarter)->setBackground(redBrush);
++        m_tblStartersPrediction->item(i, 7 + j * nbrColPerStarter)->setBackground(redBrush);
+         passAllFilters = false;
+       }
+-      m_tblStartersPrediction->setItem(i, 7 + j * nbrColPerStarter,
++      m_tblStartersPrediction->setItem(i, 8 + j * nbrColPerStarter,
+                                        new QTableWidgetItem(QString::number(starter.spDefIV)));
+       if (starter.spDefIV >= SConfig::getInstance().getMinSpDefIv(startersSettings[j]))
+       {
+-        m_tblStartersPrediction->item(i, 7 + j * nbrColPerStarter)->setBackground(greenBrush);
++        m_tblStartersPrediction->item(i, 8 + j * nbrColPerStarter)->setBackground(greenBrush);
+       }
+       else
+       {
+-        m_tblStartersPrediction->item(i, 7 + j * nbrColPerStarter)->setBackground(redBrush);
++        m_tblStartersPrediction->item(i, 8 + j * nbrColPerStarter)->setBackground(redBrush);
+         passAllFilters = false;
+       }
+-      m_tblStartersPrediction->setItem(i, 8 + j * nbrColPerStarter,
++      m_tblStartersPrediction->setItem(i, 9 + j * nbrColPerStarter,
+                                        new QTableWidgetItem(QString::number(starter.speedIV)));
+       if (starter.speedIV >= SConfig::getInstance().getMinSpeedIv(startersSettings[j]))
+       {
+-        m_tblStartersPrediction->item(i, 8 + j * nbrColPerStarter)->setBackground(greenBrush);
++        m_tblStartersPrediction->item(i, 9 + j * nbrColPerStarter)->setBackground(greenBrush);
+       }
+       else
+       {
+-        m_tblStartersPrediction->item(i, 8 + j * nbrColPerStarter)->setBackground(redBrush);
++        m_tblStartersPrediction->item(i, 9 + j * nbrColPerStarter)->setBackground(redBrush);
+         passAllFilters = false;
+       }
+ 
+       m_tblStartersPrediction->setItem(
+-          i, 9 + j * nbrColPerStarter,
++          i, 10 + j * nbrColPerStarter,
+           new QTableWidgetItem(GUICommon::typesStr[starter.hiddenPowerTypeIndex] + " " +
+                                QString::number(starter.hiddenPowerPower)));
+       bool enableHiddenPowerTypeFilters =
+@@ -405,46 +409,46 @@ void PredictorWidget::updateGUI(const GUICommon::gameSelection game)
+            starter.hiddenPowerPower >= minPowerHiddenPower) ||
+           !enableHiddenPowerTypeFilters)
+       {
+-        m_tblStartersPrediction->item(i, 9 + j * nbrColPerStarter)->setBackground(greenBrush);
++        m_tblStartersPrediction->item(i, 10 + j * nbrColPerStarter)->setBackground(greenBrush);
+       }
+       else
+       {
+-        m_tblStartersPrediction->item(i, 9 + j * nbrColPerStarter)->setBackground(redBrush);
++        m_tblStartersPrediction->item(i, 10 + j * nbrColPerStarter)->setBackground(redBrush);
+         passAllFilters = false;
+       }
+ 
+       m_tblStartersPrediction->setItem(
+-          i, 10 + j * nbrColPerStarter,
++          i, 11 + j * nbrColPerStarter,
+           new QTableWidgetItem(GUICommon::naturesStr[starter.natureIndex]));
+       bool enableNatureFilters = SConfig::getInstance().getEnableNatureFilter(startersSettings[j]);
+       QVector<bool> natureFilters = SConfig::getInstance().getNatureFilters(startersSettings[j]);
+       if (natureFilters[starter.natureIndex] || !enableNatureFilters)
+       {
+-        m_tblStartersPrediction->item(i, 10 + j * nbrColPerStarter)->setBackground(greenBrush);
++        m_tblStartersPrediction->item(i, 11 + j * nbrColPerStarter)->setBackground(greenBrush);
+       }
+       else
+       {
+-        m_tblStartersPrediction->item(i, 10 + j * nbrColPerStarter)->setBackground(redBrush);
++        m_tblStartersPrediction->item(i, 11 + j * nbrColPerStarter)->setBackground(redBrush);
+         passAllFilters = false;
+       }
+ 
+       if (game == GUICommon::gameSelection::XD)
+       {
+         m_tblStartersPrediction->setItem(
+-            i, 11 + j * nbrColPerStarter,
++            i, 12 + j * nbrColPerStarter,
+             new QTableWidgetItem(GUICommon::genderStr[starter.genderIndex]));
+         int genderIndex = static_cast<int>(SConfig::getInstance().getEeveeGender());
+         if (starter.genderIndex == genderIndex ||
+             genderIndex == static_cast<int>(GUICommon::gender::AnyGender))
+         {
+-          m_tblStartersPrediction->item(i, 11 + j * nbrColPerStarter)->setBackground(greenBrush);
++          m_tblStartersPrediction->item(i, 12 + j * nbrColPerStarter)->setBackground(greenBrush);
+         }
+         else
+         {
+-          m_tblStartersPrediction->item(i, 11 + j * nbrColPerStarter)->setBackground(redBrush);
++          m_tblStartersPrediction->item(i, 12 + j * nbrColPerStarter)->setBackground(redBrush);
+           passAllFilters = false;
+         }
+-        m_tblStartersPrediction->setItem(i, 12 + j * nbrColPerStarter,
++        m_tblStartersPrediction->setItem(i, 13 + j * nbrColPerStarter,
+                                          new QTableWidgetItem(tr(starter.isShiny ? "Yes" : "No")));
+         int shinynessIndex = static_cast<int>(SConfig::getInstance().getEeveeShininess());
+         int isShinyInt = starter.isShiny ? static_cast<int>(GUICommon::shininess::Shiny)
+@@ -452,23 +456,23 @@ void PredictorWidget::updateGUI(const GUICommon::gameSelection game)
+         if (isShinyInt == shinynessIndex ||
+             shinynessIndex == static_cast<int>(GUICommon::shininess::AnyShininess))
+         {
+-          m_tblStartersPrediction->item(i, 12 + j * nbrColPerStarter)->setBackground(greenBrush);
++          m_tblStartersPrediction->item(i, 13 + j * nbrColPerStarter)->setBackground(greenBrush);
+         }
+         else
+         {
+-          m_tblStartersPrediction->item(i, 12 + j * nbrColPerStarter)->setBackground(redBrush);
++          m_tblStartersPrediction->item(i, 13 + j * nbrColPerStarter)->setBackground(redBrush);
+           passAllFilters = false;
+         }
+       }
+     }
+     if (passAllFilters)
+     {
+-      m_tblStartersPrediction->item(i, 2)->setBackground(greenBrush);
++      m_tblStartersPrediction->item(i, 3)->setBackground(greenBrush);
+       desiredStarterFound = true;
+     }
+     else
+     {
+-      m_tblStartersPrediction->item(i, 2)->setBackground(redBrush);
++      m_tblStartersPrediction->item(i, 3)->setBackground(redBrush);
+     }
+   }
+   m_tblStartersPrediction->resizeColumnsToContents();
+diff --git a/Source/GUI/SeedFinder/SeedFinderWizard.cpp b/Source/GUI/SeedFinder/SeedFinderWizard.cpp
+index e9aa693..2329cc1 100755
+--- a/Source/GUI/SeedFinder/SeedFinderWizard.cpp
++++ b/Source/GUI/SeedFinder/SeedFinderWizard.cpp
+@@ -6,6 +6,7 @@
+ #include <QScrollArea>
+ #include <QVBoxLayout>
+ #include <QtConcurrent>
++#include <thread>
+ 
+ #include "../../PokemonRNGSystem/XD/GaleDarknessRNGSystem.h"
+ #include "../SPokemonRNG.h"
+diff --git a/Source/PokemonRNGSystem/BaseRNGSystem.h b/Source/PokemonRNGSystem/BaseRNGSystem.h
+index dc4d286..5e4b22f 100755
+--- a/Source/PokemonRNGSystem/BaseRNGSystem.h
++++ b/Source/PokemonRNGSystem/BaseRNGSystem.h
+@@ -52,6 +52,7 @@ public:
+     u32 startingSeed = 0;
+     int frameNumber = 0;
+     int trainerId = 0;
++    int secretId = 0;
+   };
+ 
+   struct StatsRange
+diff --git a/Source/PokemonRNGSystem/Colosseum/ColosseumRNGSystem.cpp b/Source/PokemonRNGSystem/Colosseum/ColosseumRNGSystem.cpp
+index 97a3e84..f3c00e7 100755
+--- a/Source/PokemonRNGSystem/Colosseum/ColosseumRNGSystem.cpp
++++ b/Source/PokemonRNGSystem/Colosseum/ColosseumRNGSystem.cpp
+@@ -425,6 +425,7 @@ BaseRNGSystem::StartersPrediction ColosseumRNGSystem::generateStarterPokemons(u3
+   PokemonProperties starter;
+ 
+   // 500 numbers of 32 bits are generated, but they don't seem to influence anything.
+   seed = LCGn(seed, 1000);
+ 
+   // Every RNG call from now on influence the starters.
+@@ -434,6 +435,7 @@ BaseRNGSystem::StartersPrediction ColosseumRNGSystem::generateStarterPokemons(u3
+   u32 lBaseId = LCG(seed) >> 16;
+   u32 hBaseId = LCG(seed) >> 16;
+   result.trainerId = lBaseId;
++  result.secretId = hBaseId;
+ 
+   // For each starter pokemon
+   for (int i = 0; i < 2; i++)
+diff --git a/Source/PokemonRNGSystem/XD/GaleDarknessRNGSystem.cpp b/Source/PokemonRNGSystem/XD/GaleDarknessRNGSystem.cpp
+index 6833ded..2fe8657 100755
+--- a/Source/PokemonRNGSystem/XD/GaleDarknessRNGSystem.cpp
++++ b/Source/PokemonRNGSystem/XD/GaleDarknessRNGSystem.cpp
+@@ -504,6 +504,7 @@ BaseRNGSystem::StartersPrediction GaleDarknessRNGSystem::generateStarterPokemons
+   u32 lTrainerId = LCG(seed) >> 16;
+   u32 hTrainerId = LCG(seed) >> 16;
+   result.trainerId = lTrainerId;
++  result.secretId = hTrainerId;
+ 
+   // Dummy personality ID (doesn't matter)
+   LCG(seed);
