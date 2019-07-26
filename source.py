@@ -1,7 +1,5 @@
 # dict of address: code
 SOURCE = {
-    # 0x: "",
-
     0x80184e64: "lfs	f2, -0x5EDC (rtoc)",
     0x80184e68: "lfs	f0, -0x5E88 (rtoc)",
     0x80184e6c: "fmuls	f1,f2,f1",
@@ -12,7 +10,7 @@ SOURCE = {
     0x80184e80: "fmul	f0,f0,f1",
     0x80184e84: "fmr	f1, f31",
     0x80184e88: "frsp	f0,f0",
-    0x80184e8c: "ret f0", # "stfs	f0, 0x002C (sp)",
+    0x80184e8c: "stfs	f0, 0x002C (sp)",
     0x80184e90: "bl	->0x800CDBE0",
     0x80184e94: "lfs	f0, 0x0080 (r31)", # TODO
     0x80184e98: "addi	r3, r31, 92",
@@ -20,8 +18,40 @@ SOURCE = {
     0x80184ea0: "addi	r5, sp, 44",
     0x80184ea4: "fmul	f0,f0,f1",
     0x80184ea8: "frsp	f0,f0",
-    0x80184eac: "ret f0", # "stfs	f0, 0x0034 (sp)",
-    0x80184eb0: "end",
+    0x80184eac: "stfs	f0, 0x0034 (sp)",
+    0x80184eb0: "bl ->0x800E019C",
+
+    0x800e019c: "stwu   sp, -0x0010 (sp)",
+    0x800e01a0: "mflr   r0",
+    0x800e01a4: "mr r6, r3",
+    0x800e01a8: "mr r3, r4",
+    0x800e01ac: "stw    r0, 0x0014 (sp)",
+    0x800e01b0: "mr r0, r5",
+    0x800e01b4: "mr r5, r6",
+    0x800e01b8: "mr r4, r0",
+    0x800e01bc: "bl ->0x800A3A78",
+
+
+    '''
+    0x800a3a78: "psq_l  p2, 0(r3)",
+    0x800a3a7c: "psq_l  p4, 0(r4)",
+    0x800a3a80: "ps_add p6, p2+p4",
+    0x800a3a84: "psq_st 0(r5), p6",
+    0x800a3a88: "psq_l  p3, 8(r3)",
+    0x800a3a8c: "psq_l  p5, 8(r4)",
+    0x800a3a90: "ps_add p7, p3+p5",
+    0x800a3a94: "psq_st 8(r5), p7",
+    0x800a3a98: "blr",
+    '''
+    0x800a3a78: "lfs  f2, 0 (r3)",
+    0x800a3a7c: "lfs  f4, 0 (r4)",
+    0x800a3a80: "fadd f6,f2,f4",
+    0x800a3a84: "ret f6",
+    0x800a3a88: "lfs  f3, 8 (r3)",
+    0x800a3a8c: "lfs  f5, 8 (r4)",
+    0x800a3a90: "fadd f7,f3,f5",
+    0x800a3a94: "ret f7",
+    0x800a3a98: "blr",
 
     0x800ce148: "stwu   sp, -0x0020 (sp)",
     0x800ce14c: "mflr   r0",

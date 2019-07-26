@@ -5,7 +5,8 @@ def end(state):
     state.end_reached = True
 
 def ret(state, rs):
-    state.ret.append(state.registers[rs])
+    val = double_to_single(state.registers[rs])
+    state.ret.append(val)
     state.current_address += 4
 
 def nop(state):
@@ -296,6 +297,14 @@ def xoris(state, ra, rs, i):
     val = state.registers[rs]
     assert isinstance(val, int)
     state.registers[ra] = val ^ (i << 16)
+    state.current_address += 4
+
+def fadd(state, rt, ra, rb):
+    val_a = state.registers[ra]
+    val_b = state.registers[rb]
+    assert isinstance(val_a, float)
+    assert isinstance(val_b, float)
+    state.registers[rt] = val_a + val_b
     state.current_address += 4
 
 def fsub(state, rt, ra, rb):
