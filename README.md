@@ -1,2 +1,2 @@
 # ShinyShadow
-Tools for a RNG manipulation of Pokemon Colosseum
+Tools for RTA RNG manipulation of shiny Pokemon in Pokemon Colosseum

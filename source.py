@@ -8,19 +8,19 @@ SOURCE = {
     0x80184e70: "fmuls	f31,f0,f1",
     0x80184e74: "fmr	f1, f31",
     0x80184e78: "bl	->0x800CE148",
-    0x80184e7c: "lfs	f0, 0x0080 (r31)",
+    0x80184e7c: "lfs	f0, 0x0080 (r31)", # TODO
     0x80184e80: "fmul	f0,f0,f1",
     0x80184e84: "fmr	f1, f31",
     0x80184e88: "frsp	f0,f0",
-    0x80184e8c: "stfs	f0, 0x002C (sp)",
+    0x80184e8c: "ret f0", # "stfs	f0, 0x002C (sp)",
     0x80184e90: "bl	->0x800CDBE0",
-    0x80184e94: "lfs	f0, 0x0080 (r31)",
+    0x80184e94: "lfs	f0, 0x0080 (r31)", # TODO
     0x80184e98: "addi	r3, r31, 92",
     0x80184e9c: "addi	r4, r31, 116",
     0x80184ea0: "addi	r5, sp, 44",
     0x80184ea4: "fmul	f0,f0,f1",
     0x80184ea8: "frsp	f0,f0",
-    0x80184eac: "stfs	f0, 0x0034 (sp)",
+    0x80184eac: "ret f0", # "stfs	f0, 0x0034 (sp)",
     0x80184eb0: "end",
 
     0x800ce148: "stwu   sp, -0x0020 (sp)",
@@ -254,7 +254,7 @@ SOURCE = {
     0x800cc3f4: "addi   r0, r3, 8699",
     0x800cc3f8: "cmpw   r6, r0",
     0x800cc3fc: "bgt-   ->0x800CC538",
-    0x800cc400: "fabs   f4,f8",
+    0x800cc400: "fabs   f4,f1", # TODO: fix this
     0x800cc404: "lis    r0, 0x4330",
     0x800cc408: "lfd    f1, -0x6EE8 (rtoc)",
     0x800cc40c: "lfd    f0, -0x6EF0 (rtoc)",
@@ -278,7 +278,7 @@ SOURCE = {
     0x800cc454: "rlwinm r0, r3, 2, 0, 29 (3fffffff)",
     0x800cc458: "addi   r4, r4, 384",
     0x800cc45c: "add    r4, r4, r0",
-    0x800cc460: "lwz    r0, -0x0004 (r4)",
+    0x800cc460: "lwz    r0, -0x0004 (r4)", # what is this?
     0x800cc464: "cmpw   r6, r0",
     0x800cc468: "beq-   ->0x800CC478",
     0x800cc46c: "fsub   f0,f4,f1",
@@ -468,8 +468,6 @@ SOURCE = {
     0x800cc74c: "addi   sp, sp, 32",
     0x800cc750: "blr    ",
 
-    # 0x800CC754
-    # 0x: "",
-    # TODO...
+    # 0x800cc754: "", # TODO?
 
 }

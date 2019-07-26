@@ -1,4 +1,4 @@
-import struct
+from conversion import *
 
 
 def LCG(prng_state, generation_constant=65536.0):
@@ -11,7 +11,7 @@ def LCG(prng_state, generation_constant=65536.0):
     prng_state = (prng_state * 214013 + 2531011) & 0xffffffff
 
     n = 0x4330000000000000 | (prng_state >> 16)
-    n = hex_to_double(n)
+    n = hex_str_to_double(hex(n)[2:])
     n -= 4503599627370496.0
     n /= generation_constant
 
@@ -56,17 +56,17 @@ def pyrite_noise(prng_state, noise_state):
 
 if __name__ == "__main__":
 
-    print(LCG(0x5e86b02b))
+    print(LCG(0xed60636d))
 
     """
     prng_state = 0x9187a4a2
-    noise_state = [hex_to_float(0x3f65557e),
-                   hex_to_float(0x3f5ac27e),
-                   hex_to_float(0x3ea0a9fc)]
+    noise_state = [int_to_float(0x3f65557e),
+                   int_to_float(0x3f5ac27e),
+                   int_to_float(0x3ea0a9fc)]
 
     while True:
         prng_state, noise_state = pyrite_noise(prng_state, noise_state)
-        print("predicted prng_state: ", hex_to_string(prng_state))
+        print("predicted prng_state: ", int_to_hex_str(prng_state))
         print("predicted noise_state: ", noise_state)
         input("press ENTER to continue")
     """
