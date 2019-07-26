@@ -31,18 +31,6 @@ SOURCE = {
     0x800e01b8: "mr r4, r0",
     0x800e01bc: "bl ->0x800A3A78",
 
-
-    '''
-    0x800a3a78: "psq_l  p2, 0(r3)",
-    0x800a3a7c: "psq_l  p4, 0(r4)",
-    0x800a3a80: "ps_add p6, p2+p4",
-    0x800a3a84: "psq_st 0(r5), p6",
-    0x800a3a88: "psq_l  p3, 8(r3)",
-    0x800a3a8c: "psq_l  p5, 8(r4)",
-    0x800a3a90: "ps_add p7, p3+p5",
-    0x800a3a94: "psq_st 8(r5), p7",
-    0x800a3a98: "blr",
-    '''
     0x800a3a78: "lfs  f2, 0 (r3)",
     0x800a3a7c: "lfs  f4, 0 (r4)",
     0x800a3a80: "fadd f6,f2,f4",
@@ -51,7 +39,7 @@ SOURCE = {
     0x800a3a8c: "lfs  f5, 8 (r4)",
     0x800a3a90: "fadd f7,f3,f5",
     0x800a3a94: "ret f7",
-    0x800a3a98: "blr",
+    0x800a3a98: "end",
 
     0x800ce148: "stwu   sp, -0x0020 (sp)",
     0x800ce14c: "mflr   r0",
