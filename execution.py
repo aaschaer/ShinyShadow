@@ -8,13 +8,14 @@ def execute(prn):
 
     DEBUG = False
 
-    # these all seem to be constants other than f1
+    # these all seem to be constants other than f1 which is the prn
     starting_ram = {
         0x809e5458: "41700000",
         0x80270184: "400921fb",
         0x80270188: "4012d97c",
         0x8027018c: "401921fb",
 
+        # constants?
         0x809e544c: "40800000",
         0x809e5454: "41c00000",
     }
@@ -58,13 +59,16 @@ def execute(prn):
 
 if __name__ == "__main__":
     
-    seed = 0xed60636d
-    _, prn = LCG(seed)
-    targetX, targetY = execute(prn)
+    prng_state = 0xed60636d
 
+    for i in range (10):
 
-    # expected = (2.78899932, 38.9510345)
-    print (targetX, targetY)
+        prng_state, prn = LCG(prng_state)
+        targetX, targetY = execute(prn)
+        print(single_to_hex_str(targetX), single_to_hex_str(targetY))
+
+        prng_state, _ = LCG(prng_state)
+        prng_state, _ = LCG(prng_state)
 
     '''
     import random

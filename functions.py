@@ -27,11 +27,10 @@ def lfs(state, rt, offset, ra):
     offset = int(offset, 16)
     if ra == "rtoc":
         val = RTOC[offset]
-        assert isinstance(val, float)
     else:
         hex_str = state.ram[state.registers[ra] + offset]
         val = hex_str_to_single(hex_str)
-    state.registers[rt] = val 
+    state.registers[rt] = single_to_double(val) 
     state.current_address += 4
 
 def lfd(state, rt, offset, ra):
@@ -102,7 +101,7 @@ def fmul(state, rt, ra, rc):
 def fmuls(state, rt, ra, rc):
     val_a = double_to_single(state.registers[ra])
     val_c = double_to_single(state.registers[rc])
-    state.registers[rt] = double_to_single(val_a * val_c)
+    state.registers[rt] = single_to_double(val_a * val_c)
     state.current_address += 4
 
 def fmr(state, rt, rb):
@@ -279,7 +278,7 @@ def fmsub(state, rt, ra, rc, rb):
     assert isinstance(val_a, float)
     assert isinstance(val_c, float)
     assert isinstance(val_b, float)
-    state.registers[rt] = (val_a * val_c) + val_b 
+    state.registers[rt] = (val_a * val_c) - val_b 
     state.current_address += 4
 
 def mr(state, rt, rb):

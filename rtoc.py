@@ -1,7 +1,9 @@
+from numpy import float32
+
 RTOC = {  # 804836a0, stored in r2
     # lfs
-    -0x5EDC: 2.0,
-    -0x5E88: 3.1415927410125732,
+    -0x5EDC: float32(2.0),
+    -0x5E88: float32(3.1415927410125732),
     # lfd
     -0x6D48: 0.0,
     -0x6EC8: 4503601774854144.0,
