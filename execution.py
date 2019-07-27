@@ -57,6 +57,14 @@ def execute(prn):
 
     return state.ret
 
+def NPC_wait_time(prn1, prn2):
+    """
+    simulates logic starting at 800e0bc0
+    """
+    rand = (prn1 + prn2) - 1.0 # constant from rtoc
+    return (3.0 * rand) + 5.0 # constants from r31
+
+
 if __name__ == "__main__":
     
     prng_state = 0xed60636d
@@ -67,8 +75,9 @@ if __name__ == "__main__":
         targetX, targetY = execute(prn)
         print(single_to_hex_str(targetX), single_to_hex_str(targetY))
 
-        prng_state, _ = LCG(prng_state)
-        prng_state, _ = LCG(prng_state)
+        prng_state, prn1 = LCG(prng_state)
+        prng_state, prn2 = LCG(prng_state)
+        print(NPC_wait_time(prn1, prn2))
 
     '''
     import random
