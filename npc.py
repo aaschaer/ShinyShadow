@@ -69,8 +69,11 @@ class NPC():
             0x80270184: "400921fb",
             0x80270188: "4012d97c",
             0x8027018c: "401921fb",
-            0x809e544c: "40800000",
-            0x809e5454: "41c00000",
+            # TODO: get the real pair constants
+            0x809e544c: "4080000000000000",
+            0x809e5454: "41c0000000000000",
+            0x8048e610: "00000000",
+            0x8048e618: "00000000",
         }
         starting_registers = {
             "sp": 0x8048e5e0,
@@ -80,8 +83,10 @@ class NPC():
         }
         exc = PPC_executor(0x80184e64, starting_ram, starting_registers)
         exc.execute()
-        self.destX = exc.registers["f6"]
-        self.destX = exc.registers["f7"]
+        self.destX = hex_str_to_single(
+            exc.read_hex_str_from_ram(0x809e5434, 4))
+        self.destY = hex_str_to_single(
+            exc.read_hex_str_from_ram(0x809e543c, 4))
 
     def walk(self):
         """
@@ -90,7 +95,6 @@ class NPC():
         starting_ram = {
             0x8047b1f8: "00000030",
             0x8047b200: "809e5220",
-
         }
         # are these all constants?
         starting_registers = {

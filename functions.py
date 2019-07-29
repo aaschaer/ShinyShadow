@@ -29,7 +29,8 @@ def lfs(state, rt, offset, ra):
     if ra == "rtoc":
         val = RTOC[offset]
     else:
-        hex_str = state.ram[state.registers[ra] + offset]
+        ea = state.registers[ra] + offset
+        hex_str = state.read_hex_str_from_ram(ea, 4)
         val = hex_str_to_single(hex_str)
     state.registers[rt] = single_to_double(val) 
     state.current_address += 4
@@ -43,51 +44,76 @@ def lfd(state, rt, offset, ra):
         assert isinstance(val, float)
     else:
         ea = state.registers[ra] + offset
-        hex_str = state.ram[ea] + state.ram[ea + 4]
+        hex_str = state.read_hex_str_from_ram(ea, 8)
         val = hex_str_to_double(hex_str)
     state.registers[rt] = val 
+    state.current_address += 4
+
+
+def lwz(state, rt, offset, ra):
+    ra = ra.strip("()")
+    offset = int(offset, 16)
+    ea = state.registers[ra] + offset
+    hex_str = state.read_hex_str_from_ram(ea, 4)
+    val = hex_str_to_int(hex_str)
+    state.registers[rt] = val
+    state.current_address += 4
+
+
+def lbz(state, rt, offset, ra):
+    ra = ra.strip("()")
+    offset = int(offset, 16)
+    ea = state.registers[ra] + offset
+    try:
+        hex_str = state.read_hex_str_from_ram(ea, 1)
+    except KeyError:
+        hex_str = "00" 
+        # print("assuming byte at {} is 00".format(hex(ea)))
+    hex_str = "000000" + hex_str
+    val = hex_str_to_int(hex_str)
+    state.registers[rt] = val
     state.current_address += 4
 
 
 def stfd(state, rs, offset, ra):
     ra = ra.strip("()")
     offset = int(offset, 16)
+    ea = state.registers[ra] + offset
     val = state.registers[rs]
     hex_str = double_to_hex_str(val)
-    # store in two words to allow lwz calls later
-    state.ram[state.registers[ra] + offset] = hex_str[0:8]
-    state.ram[state.registers[ra] + offset + 4] = hex_str[8:16]
+    state.write_hex_str_to_ram(ea, hex_str)
     state.current_address += 4
 
 
 def stfs(state, rs, offset, ra):
     ra = ra.strip("()")
     offset = int(offset, 16)
+    ea = state.registers[ra] + offset
     val = state.registers[rs]
     hex_str = single_to_hex_str(double_to_single(val))
-    ea = state.registers[ra] + offset
     if ea in (0x809e5474, 0x809e547c):
         raise Exception("target found!!")
-    state.ram[ea] = hex_str
+    state.write_hex_str_to_ram(ea, hex_str)
     state.current_address += 4
 
 
 def stw(state, rs, offset, ra):
     ra = ra.strip("()")
     offset = int(offset, 16)
+    ea = state.registers[ra] + offset
     val = state.registers[rs]
     hex_str = int_to_hex_str(val)
-    state.ram[state.registers[ra] + offset] = hex_str
+    state.write_hex_str_to_ram(ea, hex_str)
     state.current_address += 4
 
 
 def stwu(state, rs, offset, ra):
     ra = ra.strip("()")
     offset = int(offset, 16)
+    ea = state.registers[ra] + offset
     val = state.registers[rs]
     hex_str = int_to_hex_str(val)
-    ea = state.registers[ra] + offset
-    state.ram[ea] = hex_str
+    state.write_hex_str_to_ram(ea, hex_str)
     state.registers[ra] = ea
     state.current_address += 4
 
@@ -101,32 +127,19 @@ def stmw(state, rs, offset, ra):
     for i in range (start_i,31):
         val = state.registers["r" + str(i)]
         hex_str = int_to_hex_str(val)
-        state.ram[ea] = hex_str
+        state.write_hex_str_to_ram(ea, hex_str)
         ea += 4
 
     state.current_address += 4
 
 
-def lwz(state, rt, offset, ra):
-    ra = ra.strip("()")
-    offset = int(offset, 16)
-    hex_str = state.ram[state.registers[ra] + offset]
-    val = hex_str_to_int(hex_str)
-    state.registers[rt] = val
-    state.current_address += 4
-
-
-def lbz(state, rt, offset, ra):
+def stb(state, rs, offset, ra):
     ra = ra.strip("()")
     offset = int(offset, 16)
     ea = state.registers[ra] + offset
-    try:
-        hex_str = state.ram[ea]
-    except KeyError:
-        hex_str = "00000000" # why does it load so many zeros?
-        # print("assuming address {} is all zeros".format(hex(ea)))
-    val = hex_str_to_int(hex_str)
-    state.registers[rt] = val >> 24
+    val = state.registers[rs]
+    hex_str = int_to_hex_str(val)
+    state.write_hex_str_to_ram(ea, hex_str[:2])
     state.current_address += 4
 
 
@@ -162,7 +175,8 @@ def fmr(state, rt, rb):
 
 
 def frsp(state, rt, rb):
-    state.registers[rt] = single_to_double(double_to_single(state.registers[rb]))
+    state.registers[rt] = single_to_double(double_to_single(
+        state.registers[rb]))
     state.current_address += 4
 
 
@@ -423,10 +437,43 @@ def srawi(state, rt, rs, sh):
     state.registers[rt] = val
     state.current_address += 4
 
-def psq_st(state, dra, rs)
 
-    offset, ra = dra.split('(')
-    ra = ra.strip("()")
+def psq_l(state, rt, dra):
+    offset, ra = dra.split("(")
+    offset = int(offset)
+    ra = ra.strip(")")
+    ea1 = state.registers[ra] + offset
+    hex_str1 = state.read_hex_str_from_ram(ea1, 4)
+    val1 = single_to_double(hex_str_to_single(hex_str1))
+    state.registers[rt.replace("p", "f")] = val1
+    ea2 = ea1 + 4
+    hex_str2 = state.read_hex_str_from_ram(ea2, 4)
+    val2 = single_to_double(hex_str_to_single(hex_str2))
+    state.registers[rt] = val2
+    state.current_address += 4
+    
+
+def psq_st(state, dra, rs):
+    offset, ra = dra.split("(")
+    offset = int(offset)
+    ra = ra.strip(")")
+    ea1 = state.registers[ra] + offset
+    val1 = state.registers[rs.replace("p", "f")]
+    hex_str1 = single_to_hex_str(double_to_single(val1))
+    state.write_hex_str_to_ram(ea1, hex_str1)
+    ea2 = ea1 + 4
+    val2 = state.registers[rs]
+    hex_str2 = single_to_hex_str(double_to_single(val2))
+    state.write_hex_str_to_ram(ea2, hex_str2)
+    state.current_address += 4
 
 
-def psq_l(state,)
+def ps_add(state, rt, rab):
+    ra, rb = rab.split("+")
+    val_a1 = state.registers[ra.replace("p", "f")]
+    val_b1 = state.registers[rb.replace("p", "f")]
+    state.registers[rt.replace("p", "f")] = val_a1 + val_b1
+    val_a2 = state.registers[ra]
+    val_b2 = state.registers[rb]
+    state.registers[rt] = val_a2 + val_b2
+    state.current_address += 4

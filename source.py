@@ -6,13 +6,13 @@ SOURCE = {
     0x80184e70: "fmuls    f31,f0,f1",
     0x80184e74: "fmr    f1, f31",
     0x80184e78: "bl    ->0x800CE148",
-    0x80184e7c: "lfs    f0, 0x0080 (r31)", # TODO
+    0x80184e7c: "lfs    f0, 0x0080 (r31)",
     0x80184e80: "fmul    f0,f0,f1",
     0x80184e84: "fmr    f1, f31",
     0x80184e88: "frsp    f0,f0",
     0x80184e8c: "stfs    f0, 0x002C (sp)",
     0x80184e90: "bl    ->0x800CDBE0",
-    0x80184e94: "lfs    f0, 0x0080 (r31)", # TODO
+    0x80184e94: "lfs    f0, 0x0080 (r31)",
     0x80184e98: "addi    r3, r31, 92",
     0x80184e9c: "addi    r4, r31, 116",
     0x80184ea0: "addi    r5, sp, 44",
@@ -31,14 +31,14 @@ SOURCE = {
     0x800e01b8: "mr r4, r0",
     0x800e01bc: "bl ->0x800A3A78",
 
-    0x800a3a78: "psq_l   p2, 0(r3)" # "lfs  f2, 0 (r3)",
+    0x800a3a78: "psq_l  p2, 0(r3)",
     0x800a3a7c: "psq_l  p4, 0(r4)",
     0x800a3a80: "ps_add p6, p2+p4",
     0x800a3a84: "psq_st 0(r5), p6",
     0x800a3a88: "psq_l  p3, 8(r3)",
     0x800a3a8c: "psq_l  p5, 8(r4)",
     0x800a3a90: "ps_add p7, p3+p5",
-    0x800a3a94: "psq_st 8(r5), p7", # ret f7
+    0x800a3a94: "psq_st 8(r5), p7",
     0x800a3a98: "end",
 
     0x800ce148: "stwu   sp, -0x0020 (sp)",
@@ -272,7 +272,7 @@ SOURCE = {
     0x800cc3f4: "addi   r0, r3, 8699",
     0x800cc3f8: "cmpw   r6, r0",
     0x800cc3fc: "bgt-   ->0x800CC538",
-    0x800cc400: "fabs   f4,f1", # TODO: fix this
+    0x800cc400: "fabs   f4,f1",
     0x800cc404: "lis    r0, 0x4330",
     0x800cc408: "lfd    f1, -0x6EE8 (rtoc)",
     0x800cc40c: "lfd    f0, -0x6EF0 (rtoc)",
@@ -296,7 +296,7 @@ SOURCE = {
     0x800cc454: "rlwinm r0, r3, 2, 0, 29 (3fffffff)",
     0x800cc458: "addi   r4, r4, 384",
     0x800cc45c: "add    r4, r4, r0",
-    0x800cc460: "lwz    r0, -0x0004 (r4)", # what is this?
+    0x800cc460: "lwz    r0, -0x0004 (r4)",
     0x800cc464: "cmpw   r6, r0",
     0x800cc468: "beq-   ->0x800CC478",
     0x800cc46c: "fsub   f0,f4,f1",

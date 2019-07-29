@@ -57,9 +57,10 @@ if __name__ == "__main__":
     lcg = LCG(0xed60636d)
     npc = NPC(lcg, 4.0, 24.0)
     npc.step() # calc dest
+    print(single_to_hex_str(npc.destX))
     assert single_to_hex_str(npc.destX) == "40327ef7"
     assert single_to_hex_str(npc.destY) == "421bcddc"
 
-    npc.step() # walk a step
-    assert single_to_hex_str(npc.currentX) == "407e7ffb"
-    assert single_to_hex_str(npc.currentY) == "41c250a4"
+    # npc.step() # walk a step
+    # assert single_to_hex_str(npc.currentX) == "407e7ffb"
+    # assert single_to_hex_str(npc.currentY) == "41c250a4"
