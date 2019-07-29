@@ -1,6 +1,7 @@
 import struct
 from numpy import float32
 
+
 def int_to_float(val):
     assert isinstance(val, int)
     return struct.unpack('<f', struct.pack('<i', val))[0]

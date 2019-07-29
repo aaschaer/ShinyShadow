@@ -1,21 +1,6 @@
 from conversion import *
-
-
-def LCG(prng_state, generation_constant=65536.0):
-    """
-    simulates subroutine 801adc7c
-    """
-    assert isinstance(prng_state, int)
-    assert isinstance(generation_constant, float)
-
-    prng_state = (prng_state * 214013 + 2531011) & 0xffffffff
-
-    n = 0x4330000000000000 | (prng_state >> 16)
-    n = hex_str_to_double(hex(n)[2:])
-    n -= 4503599627370496.0
-    n /= generation_constant
-
-    return prng_state, n
+from lcg import LCG
+from npc import NPC
 
 
 def prng_range(prng_state, n):
@@ -56,8 +41,6 @@ def pyrite_noise(prng_state, noise_state):
 
 if __name__ == "__main__":
 
-    print(LCG(0xed60636d))
-
     """
     prng_state = 0x9187a4a2
     noise_state = [int_to_float(0x3f65557e),
@@ -70,3 +53,13 @@ if __name__ == "__main__":
         print("predicted noise_state: ", noise_state)
         input("press ENTER to continue")
     """
+
+    lcg = LCG(0xed60636d)
+    npc = NPC(lcg, 4.0, 24.0)
+    npc.step() # calc dest
+    assert single_to_hex_str(npc.destX) == "40327ef7"
+    assert single_to_hex_str(npc.destY) == "421bcddc"
+
+    npc.step() # walk a step
+    assert single_to_hex_str(npc.currentX) == "407e7ffb"
+    assert single_to_hex_str(npc.currentY) == "41c250a4"

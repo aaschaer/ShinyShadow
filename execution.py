@@ -1,79 +1,71 @@
 from source import SOURCE
-from state import State
 import functions
-from prng_analyzer import LCG
 from conversion import *
 
-def execute(prn):
 
-    DEBUG = False
-
-    # these all seem to be constants other than f1 which is the prn
-    starting_ram = {
-        0x809e5458: "41700000",
-        0x80270184: "400921fb",
-        0x80270188: "4012d97c",
-        0x8027018c: "401921fb",
-
-        # constants?
-        0x809e544c: "40800000",
-        0x809e5454: "41c00000",
-    }
-    starting_registers = {
-        "sp": 0x8048e5e0,
-        "r30": 0x809e53d8,
-        "r31": 0x809e53d8,
-        "f1": prn,
-    }
-    state = State(0x80184e64, starting_ram, starting_registers)
-
-    breakpoints = []
-
-    while not state.end_reached:
-
-        if state.current_address in breakpoints:
-            DEBUG = True
-
-        code = SOURCE[state.current_address]
-        args = code.replace(",", " ").split()
-
-        if DEBUG:
-            print(hex(state.current_address), code)
-            input("press Enter to run line")
-        f = method_to_call = getattr(functions, args[0].strip("-"))
-        f(state, *args[1:])
-
-        if DEBUG:
-            for key in sorted(state.registers.keys()):
-                val = state.registers[key]
-                if isinstance(val, int):
-                    print("{}: {}".format(key, int_to_hex_str(val)))
-                elif isinstance(val, float):
-                    print("{}: {}".format(key,  double_to_hex_str(val)))
-                else:
-                    raise TypeError(val)
-            # print(state.ram)
-            print("")
-
-    return state.ret
-
-
-if __name__ == "__main__":
+class PPC_executor():
     
-    prng_state = 0xed60636d
+    def __init__(self, start_address, starting_ram, starting_registers):
 
-    for i in range (10):
+        self.end_reached = False
+        self.current_address = start_address
+        self.registers = starting_registers
+        self.ram = starting_ram
+        self.cr0 = None
+        self.cr1 = None
+        self.ret = [] # list of values to return
 
-        prng_state, prn = LCG(prng_state)
-        targetX, targetY = execute(prn)
-        print(single_to_hex_str(targetX), single_to_hex_str(targetY))
+    def print_line(self):
+        print(hex(self.current_address), SOURCE[self.current_address])
+        print("")
 
-        prng_state, prn1 = LCG(prng_state)
-        prng_state, prn2 = LCG(prng_state)
-        print(NPC_wait_time(prn1, prn2))
+    def print_registers(self):
+        for key in sorted(self.registers.keys()):
+            val = self.registers[key]
+            if isinstance(val, int):
+                print("{}: {}".format(key, int_to_hex_str(val)))
+            elif isinstance(val, float):
+                print("{}: {}".format(key,  double_to_hex_str(val)))
+            else:
+                print("{}: {}".format(key,  val))
+                print("UNEXPECTED TYPE: {}".format(type(val)))
+        print("")
 
-    '''
-    import random
-    for i in range(54000):
-        execute(random.random())
-    '''
+    def print_ram(self):
+        for key in sorted(self.ram.keys()):
+            print("{}: {}".format(hex(key), self.ram[key]))
+        print("")
+            
+
+    def execute(self):
+        DEBUG = False
+        breakpoints = []
+
+        while not self.end_reached:
+
+            if self.current_address in breakpoints:
+                DEBUG = True
+
+            try:
+                args = SOURCE[self.current_address].replace(",", " ").split()
+            except KeyError:
+                raise Exception("no source code for address", hex(self.current_address))
+
+            if DEBUG:
+                self.print_line()
+                input("press Enter to run line")
+
+            f = method_to_call = getattr(functions, args[0].strip("-+"))
+
+            try:
+                f(self, *args[1:])
+            except Exception as e:
+                self.print_line()
+                self.print_registers()
+                # self.print_ram()
+                raise
+
+            if DEBUG:
+                self.print_registers()
+
+        return self.ret
