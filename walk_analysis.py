@@ -25,7 +25,7 @@ target = ("40327EF7", "421BCDDC")
 
 paths = [
     [
-        ("40800000", "41C00000"), # very first step is eactly half
+        # ("40800000", "41C00000"),
         ("407E7FFB", "41C250A4"),
         ("407B7FF1", "41C6F1EC"),
         ("40787FE7", "41CB9334"),
@@ -108,17 +108,42 @@ paths = [
         ("414C81A0", "413B152C"),
         ("414BD369", "413CF06C"),
     ],
+
+    [
+        ("414BD369", "413CF06C"),
+        ("41429AAF", "413BCFAA"),
+        ("413961F5", "413AAEE8"),
+        ("4130293B", "41398E26"),
+        ("4126F081", "41386D64"),
+        ("411DB7C7", "41374CA2"),
+        ("41147F0D", "41362BE0"),
+        ("410B4653", "41350B1E"),
+        ("41020D99", "4133EA5C"),
+        ("40F1A9BD", "4132C99A"),
+        ("40DF3848", "4131A8D8"),
+        ("40CCC6D3", "41308816"),
+        ("40BA555E", "412F6754"),
+        ("40A7E3E9", "412E4692"),
+        ("40957274", "412D25D0"),
+        ("408300FF", "412C050E"),
+        ("40611F14", "412AE44C"),
+        ("403C3C2A", "4129C38A"),
+        ("40175940", "4128A2C8"),
+        ("3FE4ECAC", "41278206"),
+        ("3F9B26D8", "41266144"),
+        ("3F22C209", "41254082"),
+        ("3D736620", "41241FC0"),
+        ("BF045545", "4122FEFE"),
+        ("BF8BF076", "4121DE3C"),
+        ("BFD5B64A", "4120BD7A"),
+        ("BFC58270", "4120FCF3"),
+    ],
 ]
 
 # print(distance(start, target))
 
-for path in paths:
-    for i in range(1, len(path)):
-        print(pyth_distance(path[i], path[i-1]))
-        print(x_distance(path[i], path[i-1]))
-        print(y_distance(path[i], path[i-1]))
+if __name__ == "__main__":
+    for path in paths:
+        for i in range(1, len(path)):
+            print(pyth_distance(path[i], path[i-1]))
         print()
-    print()
-
-
-c = 0.06629463248411971

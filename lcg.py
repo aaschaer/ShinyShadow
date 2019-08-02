@@ -9,6 +9,7 @@ class LCG():
 
     def __init__(self, seed):
 
+        assert isinstance(seed, int)
         self.state = seed
 
     def generate(self, generation_constant=65536.0):

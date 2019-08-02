@@ -1,6 +1,9 @@
 from conversion import *
 from lcg import LCG
 from npc import NPC
+import random
+
+from walk_analysis import paths
 
 
 def prng_range(prng_state, n):
@@ -54,13 +57,20 @@ if __name__ == "__main__":
         input("press ENTER to continue")
     """
 
-    lcg = LCG(0xed60636d)
-    npc = NPC(lcg, 4.0, 24.0)
+    seed =0xed60636d
+
+    lcg = LCG(seed)
+    npc = NPC(lcg, float32(4.0), float32(24.0))
     npc.step() # calc dest
-    print(single_to_hex_str(npc.destX))
+ 
     assert single_to_hex_str(npc.destX) == "40327ef7"
     assert single_to_hex_str(npc.destY) == "421bcddc"
+    assert single_to_hex_str(npc.walk_speed) == "bda585a9"
 
-    # npc.step() # walk a step
-    # assert single_to_hex_str(npc.currentX) == "407e7ffb"
-    # assert single_to_hex_str(npc.currentY) == "41c250a4"
+    for step in paths[0]:
+        npc.step() # walk a step
+        if single_to_hex_str(npc.currentX).lower() != step[0].lower():
+            raise ValueError("unexpected currentX", single_to_hex_str(npc.currentX), step[0])
+        if single_to_hex_str(npc.currentY).lower() != step[1].lower():
+            raise ValueError("unexpected currentY", single_to_hex_str(npc.currentY), step[1])
+        print("good step!")

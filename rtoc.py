@@ -1,9 +1,23 @@
 from numpy import float32
 
-RTOC = {  # 804836a0, stored in r2
+RTOC = {  # 0x804836a0, stored in r2
+
     # lfs
     -0x5EDC: float32(2.0),
     -0x5E88: float32(3.1415927410125732),
+    -0x5F00: float32(0.0),
+    -0x5E00: float32(2500.0),
+    -0x6A40: float32(1.0),
+    -0x6A3C: float32(-1.0),
+    -0x5E70: float32(0.4),
+    -0x5F04: float32(1.0),
+    -0x5E2C: float32(0.6),
+    -0x5EFC: float32(0.5),
+    -0x73E0: float32(0.5),
+    -0x73DC: float32(3.0),
+    -0x73D0: float32(0.5),
+    -0x5EE0: float32(6.28319),
+
     # lfd
     -0x6D48: 0.0,
     -0x6EC8: 4503601774854144.0,
@@ -34,4 +48,6 @@ RTOC = {  # 804836a0, stored in r2
     -0x6E08: 0.5,
     -0x6E10: -0.16666666666666632,
     -0x6D90: 0.0,
+    -0x5ED0: 4503599627370496.0,
+    -0x5ED8: 4503601774854144.0,
 }
