@@ -34,6 +34,8 @@ def single_to_double(val):
 
 def int_to_hex_str(i):
     assert isinstance(i, int)
+    if i < 0:
+        i += 2**32
     val =  hex(i)[2:]
     val = "0" * (8 - len(val)) + val
     assert(len(val) == 8)
@@ -42,7 +44,10 @@ def int_to_hex_str(i):
 
 def hex_str_to_int(s):
     assert(len(s) == 8)
-    return int(s, 16)
+    val = int(s, 16)
+    if val & 0x800000000:
+       val -= 2**32
+    return val
 
 
 def hex_str_to_single(s):
@@ -70,11 +75,20 @@ def double_to_hex_str(f):
     assert(len(val) == 16)
     return val
 
+
 def int_to_bin_str(i):
     assert isinstance(i, int)
     if i < 0:
-        i += 2**32 # two's compliment
+        i += 2**32
     val = bin(i)[2:]
     val = "0" * (32 - len(val)) + val
     assert len(val) == 32
+    return val
+
+
+def bin_str_to_int(s):
+    assert(len(s) == 32)
+    val = int(s, 2)
+    if val & 0x800000000:
+       val -= 2**32
     return val

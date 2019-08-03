@@ -15,6 +15,7 @@ class PPC_executor():
             self.write_hex_str_to_ram(key, val)
         self.cr0 = None
         self.cr1 = None
+        self.ctr = None
 
     def print_line(self):
         print(hex(self.current_address), SOURCE[self.current_address])
@@ -51,10 +52,6 @@ class PPC_executor():
         """
         read specified number of bytes from ram starting at given address
         """
-        if address in (0x809e5474, 0x809e5475, 0x809e5476, 0x809e5478,
-                       0x809e547c, 0x809e547d, 0x809e547e, 0x809e547f):
-            print("reading from current position")
-        
         ret = ""
         for i in range(byte_len):
             try:
@@ -73,7 +70,7 @@ class PPC_executor():
                 print("{}: {}".format(key,  double_to_hex_str(val)))
             else:
                 print("{}: {}".format(key,  val))
-                print("UNEXPECTED TYPE: {}".format(type(val)))
+                raise TypeError("UNEXPECTED TYPE: {}".format(type(val)))
         print("")
 
     def execute(self):
@@ -95,7 +92,7 @@ class PPC_executor():
                 self.print_line()
                 input("press Enter to run line")
 
-            f = method_to_call = getattr(functions, args[0].strip("-+."))
+            f = getattr(functions, args[0].strip("-+").replace(".", "_cr"))
 
             try:
                 f(self, *args[1:])

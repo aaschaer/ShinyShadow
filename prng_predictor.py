@@ -57,20 +57,37 @@ if __name__ == "__main__":
         input("press ENTER to continue")
     """
 
-    seed =0xed60636d
+    seed = 0xed60636d
 
     lcg = LCG(seed)
     npc = NPC(lcg, float32(4.0), float32(24.0))
-    npc.step() # calc dest
- 
+    
+    for i in range(1, 52000):
+        npc.step()
+        print("step: ", i)
+        print("prng: ", int_to_hex_str(lcg.state))
+        print("destX: ", single_to_hex_str(npc.destX))
+        print("destY: ", single_to_hex_str(npc.destY))
+        print("speed: ", single_to_hex_str(npc.walk_speed))
+        print("currentX: ", single_to_hex_str(npc.currentX))
+        print("currentY: ", single_to_hex_str(npc.currentY))
+        print("wait_time: ", single_to_hex_str(npc.wait_time))
+        if i >= 165:
+            input("press ENTER to continue")
+        print()
+
+    '''
+    npc.step()
     assert single_to_hex_str(npc.destX) == "40327ef7"
     assert single_to_hex_str(npc.destY) == "421bcddc"
-    assert single_to_hex_str(npc.walk_speed) == "bda585a9"
+    if single_to_hex_str(npc.walk_speed) != "bda585a9":
+        raise ValueError(single_to_hex_str(npc.walk_speed))
 
     for step in paths[0]:
-        npc.step() # walk a step
+        npc.step()
         if single_to_hex_str(npc.currentX).lower() != step[0].lower():
             raise ValueError("unexpected currentX", single_to_hex_str(npc.currentX), step[0])
         if single_to_hex_str(npc.currentY).lower() != step[1].lower():
             raise ValueError("unexpected currentY", single_to_hex_str(npc.currentY), step[1])
         print("good step!")
+    '''

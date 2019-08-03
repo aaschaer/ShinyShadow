@@ -5,41 +5,46 @@ from numpy import float32
 from conversion import *
 from execution import PPC_executor
 
-CALCING_DEST = 0
+WAITING = 0
 WALKING = 1
-WAITING = 2
 
 
 class NPC():
     
     def __init__(self, lcg, startingX, startingY):
         self.lcg = lcg
-        self.wait_time = 0
+        self.wait_time = float32(0.0)
         self.walk_speed = float32(0.0)
         self.currentX = startingX
         self.currentY = startingY
-        self.state = CALCING_DEST
+        self.nextX = None
+        self.nextY = None
+        self.state = WAITING
         self.first_step = True
 
     def step(self):
         """
         simulates one frame of NPC action
         """
-        if self.state == CALCING_DEST:
-            self.set_walk_dest()
-            self.set_walk_speed()
-            self.state = WALKING
-
-        elif self.state == WALKING:
+        if self.state == WALKING:
             self.walk()
-            if (self.currentX == self.destX and
-                    self.currentY == self.destY):
+            if (self.nextX == self.destX and
+                    self.nextY == self.destY):
                 self.set_wait_time()
                 self.state = WAITING
 
         elif self.state == WAITING:
-            if self.wait_time == 0:
-                self.state == CALCING_DEST
+            if self.nextX:
+                self.currentX = self.destX
+                self.nextX = None
+            if self.nextY:
+                self.currentY = self.destY
+                self.nextX = None
+
+            if self.wait_time <= float32(0.0):
+                self.set_walk_params()
+                self.walk()
+                self.state = WALKING
             else:
                 self.wait()
 
@@ -50,7 +55,7 @@ class NPC():
         prn1 = self.lcg.generate()
         prn2 = self.lcg.generate()
         rand = (prn1 + prn2) - 1.0 # constant from rtoc
-        self.wait_time = (3.0 * rand) + 5.0 # constants from r31
+        self.wait_time = float32((3.0 * rand) + 5.0) # constants from r31
 
     def wait(self):
         """
@@ -61,14 +66,14 @@ class NPC():
         if val >= 0:
             self.wait_time = double_to_single(val)
         else:
-            self.wait_time == float32(0.0)
+            self.wait_time = float32(0.0)
 
-    def set_walk_dest(self):
+    def set_walk_params(self):
         """
         executes logic for selecting a pseudo random walk destination
+        and walk speed
         """
         prn = self.lcg.generate()
-        print(prn, double_to_hex_str(prn))
 
         starting_ram = {
             0x809e5458: "41700000",
@@ -79,37 +84,11 @@ class NPC():
             0x809e5454: "41c0000041700000",
             0x8048e610: "00000000",
             0x8048e618: "ffffffff",
-        }
-        starting_registers = {
-            "sp": 0x8048e5e0,
-            "r30": 0x809e53d8,
-            "r31": 0x809e53d8,
-            "f1": prn,
-        }
-        exc = PPC_executor(0x80184e64, starting_ram, starting_registers)
-        exc.execute()
-        self.destX = hex_str_to_single(
-            exc.read_hex_str_from_ram(0x809e5434, 4))
-        self.destY = hex_str_to_single(
-            exc.read_hex_str_from_ram(0x809e543c, 4))
 
-    def set_walk_speed(self):
-        """
-        executes logic for selecting a walk speed
-        """
-        starting_ram = {
-            0x80273fc0: "00000000",
-            0x80273fc4: "00000000",
-            0x80273fc8: "00000000",
-            0x809e542d: "00", # non constant?
             0x809e53e0: "8050f0c0",
-            0x809e5434: "40327ef700000000",
-            0x8050f0d8: "4080000000000000", # current x?
-            0x809e543c: "421bcddc00000000",
-            0x8050f0e0: "41c0000000000000", # current y?
-            0x809e5400: "00000020",
+            0x8050f0dc: "00000000",
             0x809e5404: "00000000",
-            0x809e5430: "3f800000",
+            0x809e5400: "00000020",
             0x8047b1f8: "00000030",
             0x8047b200: "809e5220",
             0x809e5220: "01",
@@ -120,35 +99,45 @@ class NPC():
             0x809e53dc: "809e53d8",
             0x809e5224: "809e5220",
             0x809e5300: "809e52fc",
-            0x8050f0c0: "10113027", # variable, but unused?
-            0x8050f160: "41f00000",
-            0x8047aa94: "0000003c",
-            0x809e540c: "3e94a529",
-            0x8031554c: "00000000",
-            0x80315550: "3f800000",
-            0x80315550: "00000000",
-            0x8047aa80: "e0000000",
-            0x809e545c: "00000000",
+            
+            0x8050f0e4: "000000000000000000000000",
 
-            0x809e5418: single_to_hex_str(self.walk_speed),
+            0x80270348: "3f90ad3ae322da11",
+            0x80270338: "3fa97b4b24760deb",
+            0x80270328: "3fb10d66a0d03d51",
+            0x80270340: "bfa2b4442c6a6c2f",
+            0x80270330: "bfadde2d52defd9a",
+            0x80270318: "3fb745cdc54c206e",
+            0x80270320: "bfb3b0f2af749a6d",
+            0x80270308: "3fc24924920083ff",
+            0x80270310: "bfbc71c6fe231671",
+            0x802702f8: "3fd555555555550d",
+            0x80270300: "bfc999999998ebc4",
+            0x802702f0: "3c9aa62633145c07",
+            0x802702d0: "3ff921fb54442d18",
+            0x802702d8: "3c7a2b7f222f65e2",
+            0x802702b8: "3fddac670561bb4f",
+            0x802702e0: "3c81a62633145c07",
+            0x802702c0: "3fe921fb54442d18",
+            0x802702e8: "3c7007887af0cbbd",
+            0x802702c8: "3fef730bd281f69b",
 
-            0xe0000054: "00000001", # ????
-
+            0x8050f0d8: single_to_hex_str(self.currentX),
+            0x8050f0e0: single_to_hex_str(self.currentY),
         }
         starting_registers = {
             "sp": 0x8048e5e0,
-            "r3": 0x809e53d8,
             "r13": 0x80480820,
-            "r28": 0x00000001,
-            "r29": 0x807f1048,
             "r30": 0x809e53d8,
-            "f30": hex_str_to_double("ffffffffffffffff"),
-            "p30": hex_str_to_double("4070000000000000"),
-            "f31": hex_str_to_double("0000000000000000"),
-            "p31": hex_str_to_double("0000000000000000"),
+            "r31": 0x809e53d8,
+            "f1": prn,
         }
-        exc = PPC_executor(0x80184d98, starting_ram, starting_registers)
+        exc = PPC_executor(0x80184e64, starting_ram, starting_registers)
         exc.execute()
+        self.destX = hex_str_to_single(
+            exc.read_hex_str_from_ram(0x809e5434, 4))
+        self.destY = hex_str_to_single(
+            exc.read_hex_str_from_ram(0x809e543c, 4))
         self.walk_speed = hex_str_to_single(
             exc.read_hex_str_from_ram(0x809e5418, 4))
 
@@ -169,7 +158,7 @@ class NPC():
             "f1": hex_str_to_double("3ff0000000000000"),
             "f30": hex_str_to_double("ffffffffffffffff"),
             "p30": hex_str_to_double("4070000000000000"),
-            "f31": hex_str_to_double("402d6b5aa0000000"), # unused? seems speed related
+            "f31": hex_str_to_double("402d6b5aa0000000"), # unused?
             "p31": hex_str_to_double("0000000000000000"),
         }
         starting_ram = {
@@ -196,8 +185,6 @@ class NPC():
             0x8047aa80: "e0000000",
 
             0x809e5418: single_to_hex_str(self.walk_speed),
-            0x8050f0d8: single_to_hex_str(self.currentX),
-            0x8050f0e0: single_to_hex_str(self.currentY),
             
             # changes between some steps, but doesn't seem to be used
             0x8050f0c0: "10102027",
@@ -210,23 +197,38 @@ class NPC():
         else:
             starting_ram[0xe0000054] = "00000002"
 
+        # if this is the first step in the walk, use current vals for calc
+        if self.nextX is None:
+            starting_ram[0x8050f0d8] = single_to_hex_str(self.currentX)
+        else:
+            starting_ram[0x8050f0d8] = single_to_hex_str(self.nextX)
+
+        if self.nextY is None:
+            starting_ram[0x8050f0e0] = single_to_hex_str(self.currentY)
+        else:
+            starting_ram[0x8050f0e0] = single_to_hex_str(self.nextY)
+
         exc = PPC_executor(0x80188214, starting_ram, starting_registers)
         exc.execute()
 
-        nextX = hex_str_to_single(
+        calcedX = hex_str_to_single(
             exc.read_hex_str_from_ram(0x8048e540, 4))
-        nextY = hex_str_to_single(
+        calcedY = hex_str_to_single(
             exc.read_hex_str_from_ram(0x8048e548, 4))
 
-        # check if we would pass the destination and if so set to it
-        if ((self.currentX <= self.destX and self.destX <= nextX) or
-            (self.currentX >= self.destX and self.destX >= nextX)):
-            self.currentX = self.destX
-        else:
-            self.currentX = nextX
+        # check if we would pass the destination and if so stop at it
+        if (self.nextX and ((self.nextX <= self.destX and self.destX <= calcedX) or
+                            (self.nextX >= self.destX and self.destX >= calcedX))):
+            calcedX = self.destX
 
-        if ((self.currentY <= self.destY and self.destY <= nextY) or
-            (self.currentY >= self.destY and self.destY >= nextY)):
-            self.currentY = self.destY
-        else:
-            self.currentY = nextY
+        if (self.nextY and ((self.nextY <= self.destY and self.destY <= calcedY) or
+                            (self.nextY >= self.destY and self.destY >= calcedY))):
+            calcedY = self.destY
+
+        # move to next vals
+        if self.nextX:
+            self.currentX = self.nextX
+        self.nextX = calcedX
+        if self.nextY:
+            self.currentY = self.nextY
+        self.nextY = calcedY

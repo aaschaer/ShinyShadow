@@ -52,6 +52,14 @@ def lfd(state, rt, offset, ra):
     state.current_address += 4
 
 
+def lfdx(state, rt, ra, rb):
+    ea = state.registers[ra] + state.registers[rb]
+    hex_str = state.read_hex_str_from_ram(ea, 8)
+    val = hex_str_to_double(hex_str)
+    state.registers[rt] = val 
+    state.current_address += 4
+
+
 def lwz(state, rt, offset, ra):
     ra = ra.strip("()")
     offset = int(offset, 16)
@@ -192,6 +200,15 @@ def fmuls(state, rt, ra, rc):
     state.current_address += 4
 
 
+def fdiv(state, rt, ra, rc):
+    val_a = state.registers[ra]
+    val_c = state.registers[rc]
+    assert isinstance(val_a, float)
+    assert isinstance(val_c, float)
+    state.registers[rt] = val_a / val_c
+    state.current_address += 4
+
+
 def fdivs(state, rt, ra, rc):
     val_a = state.registers[ra]
     val_c = state.registers[rc]
@@ -273,7 +290,10 @@ def add(state, rt, ra, rb):
     val_b = state.registers[rb]
     assert isinstance(val_a, int)
     assert isinstance(val_b, int)
-    state.registers[rt] = val_a + val_b
+    val =  (val_a + val_b) & 0xffffffff
+    if val & 0x800000000:
+        val -= 2*32
+    state.registers[rt] = val
     state.current_address += 4
 
 
@@ -294,6 +314,12 @@ def sub(state, rt, ra, rb):
     state.current_address += 4
 
 
+def sub_cr(state, rt, ra, rb):
+    sub(state, rt, ra, rb)
+    state.cr0 = state.registers[rt]
+    state.cr1 = 0
+
+
 def subi(state, rt, ra, i):
     i = int(i)
     val = state.registers[ra]
@@ -307,12 +333,13 @@ def subic(state, rt, ra, i):
     val = state.registers[ra]
     assert isinstance(val, int)
     state.registers[rt] = val - i
-
-    # fix this?
-    state.cr0 = val - i
-    state.cr1 = 0
-
     state.current_address += 4
+
+
+def subic_cr(state, rt, ra, i):
+    subic(state, rt, ra, i)
+    state.cr0 = state.registers[rt]
+    state.cr1 = 0
 
 
 def subis(state, rt, ra, i):
@@ -325,26 +352,46 @@ def subis(state, rt, ra, i):
 
 def rlwinm(state, ra, rs, sh, mb, me, m):
     sh = int(sh)
-    m = int(m.strip("()"), 16)
+    mb = int(mb)
+    me = int(me)
     val = state.registers[rs]
     assert isinstance(val, int)
     
     # bit rotate left
     assert(sh < 32)
-    b = bin(val)[2:]
-    b = "0" * (32- len(b)) + b
+    b = int_to_bin_str(val)
+    b = "0" * (32 - len(b)) + b
     assert len(b) == 32
     b = b[sh:] + b[:sh]
-    val = int(b, 2)
+    val = bin_str_to_int(b)
 
-    # mask
-    state.registers[ra] = val & m
+    # generate mask
+    if mb < me + 1:
+        mask_bits = (
+            "0" * mb + 
+            "1" * ((me + 1) - mb) +
+            "0" * (32 - (me + 1)))
+    if mb == me + 1:
+        mask_bits = "1" * 32
+    if mb > me + 1:
+        raise Exception("implement rlwinm")
+
+    # mask and
+    mask = bin_str_to_int(mask_bits)
+    state.registers[ra] = val & mask
     state.current_address += 4
+
+
+def rlwinm_cr(state, ra, rs, sh, mb, me, m):
+    rlwinm(state, ra, rs, sh, mb, me, m)
+    state.cr0 = state.registers[ra]
+    state.cr1 = 0
 
 
 def rlwimi(state, ra, rs, sh, mb, me, m):
     sh = int(sh)
-    m = int(m.strip("()"), 16)
+    mb = int(mb)
+    me = int(me)
     val_a = state.registers[ra]
     val_s = state.registers[rs]
     assert isinstance(val_a, int)
@@ -352,14 +399,26 @@ def rlwimi(state, ra, rs, sh, mb, me, m):
     
     # bit rotate left
     assert(sh < 32)
-    b = bin(val_s)[2:]
-    b = "0" * (32- len(b)) + b
+    b = int_to_bin_str(val_s)
+    b = "0" * (32 - len(b)) + b
     assert len(b) == 32
     b = b[sh:] + b[:sh]
-    val_s = int(b, 2)
+    val_s = bin_str_to_int(b)
+
+    # generate mask
+    if mb < me + 1:
+        mask_bits = (
+            "0" * mb + 
+            "1" * ((me + 1) - mb) +
+            "0" * (32 - (me + 1)))
+    if mb == me + 1:
+        mask_bits = "1" * 32
+    if mb > me + 1:
+        raise Exception("implement rlwimi")
 
     # mask insert
-    state.registers[ra] = (val_a & ~m) | (val_s & m)
+    mask = bin_str_to_int(mask_bits)
+    state.registers[ra] = (val_a & ~mask) | (val_s & mask)
     state.current_address += 4
 
 
@@ -485,6 +544,13 @@ def beqlr(state):
         state.current_address += 4
 
 
+def bdnz(state, pointer):
+    if state.ctr == 0:
+        state.current_address = int(pointer[2:], 16)
+    else:
+        state.current_address += 4
+
+
 def fctiwz(state, rt, rb):
     val = state.registers[rb]
     assert isinstance(val, float)
@@ -533,6 +599,12 @@ def mr(state, rt, rb):
     state.current_address += 4
 
 
+def mr_cr(state, rt, rb):
+    mr(state, rt, rb)
+    state.cr0 = state.registers[rt]
+    state.cr1 = 0
+
+
 def fabs(state, rt, rb):
     val = state.registers[rb]
     assert isinstance(val, float)
@@ -548,6 +620,17 @@ def xoris(state, ra, rs, i):
     val = state.registers[rs]
     assert isinstance(val, int)
     state.registers[ra] = val ^ (i << 16)
+    state.current_address += 4
+
+
+def oris(state, ra, rs, i):
+    try:
+        i = int(i)
+    except:
+        i = int(i, 16)
+    val = state.registers[rs]
+    assert isinstance(val, int)
+    state.registers[ra] = val | (i << 16)
     state.current_address += 4
 
 
@@ -603,7 +686,14 @@ def fnmsub(state, rt, ra, rc, rb):
 def fneg(state, rt, rb):
     val = state.registers[rb]
     assert isinstance(val, float)
-    state.registers[rb] = val * -1
+    state.registers[rt] = val * -1.0
+    state.current_address += 4
+
+
+def neg(state, rt, rb):
+    val = state.registers[rb]
+    assert isinstance(val, int)
+    state.registers[rt] = ~val + 1
     state.current_address += 4
 
 
@@ -719,4 +809,33 @@ def ps_muls0(state, rt, rab):
     val_b0 = state.registers[rb.replace("p", "f")]
     state.registers[rt.replace("p", "f")] = val_a0 * val_b0
     state.registers[rt] = val_a1 * val_b0
+    state.current_address += 4
+
+
+def ior(state, rt, ra, rb):
+    val_a = state.registers[ra]
+    val_b = state.registers[rb]
+    assert isinstance(val_a, int)
+    assert isinstance(val_b, int)
+    state.registers[rt] = val_a | val_b
+    state.current_address += 4
+
+
+def ior_cr(state, rt, ra, rb):
+    ior(state, rt, ra, rb)
+    state.cr0 = state.registers[rt]
+    state.cr1 = 0
+
+
+def xor(state, rt, ra, rb):
+    val_a = state.registers[ra]
+    val_b = state.registers[rb]
+    assert isinstance(val_a, int)
+    assert isinstance(val_b, int)
+    state.registers[rt] = val_a ^ val_b
+    state.current_address += 4
+
+
+def mtctr(state, ra):
+    state.ctr = state.registers[ra]
     state.current_address += 4
