@@ -16,6 +16,8 @@ class PPC_executor():
         self.cr0 = None
         self.cr1 = None
         self.ctr = None
+        self.debug = False
+        self.breakpoints = []
 
     def print_line(self):
         print(hex(self.current_address), SOURCE[self.current_address])
@@ -74,13 +76,10 @@ class PPC_executor():
         print("")
 
     def execute(self):
-        DEBUG = False
-        breakpoints = []
-
         while not self.end_reached:
 
-            if self.current_address in breakpoints:
-                DEBUG = True
+            if self.current_address in self.breakpoints:
+                self.debug = True
 
             try:
                 args = SOURCE[self.current_address].replace(",", " ").split()
@@ -88,7 +87,7 @@ class PPC_executor():
                 raise Exception("no source code for address", hex(
                     self.current_address))
 
-            if DEBUG:
+            if self.debug:
                 self.print_line()
                 input("press Enter to run line")
 
@@ -102,6 +101,6 @@ class PPC_executor():
                 self.print_ram()
                 raise
 
-            if DEBUG:
+            if self.debug:
                 self.print_registers()
                 self.print_ram()

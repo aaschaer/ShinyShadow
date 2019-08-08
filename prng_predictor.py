@@ -3,7 +3,7 @@ from lcg import LCG
 from npc import NPC
 import random
 
-from walk_analysis import paths
+from prediction_vid import create_frame, create_video
 
 
 def prng_range(prng_state, n):
@@ -62,32 +62,29 @@ if __name__ == "__main__":
     lcg = LCG(seed)
     npc = NPC(lcg, float32(4.0), float32(24.0))
     
-    for i in range(1, 52000):
+    for i in range(1, 60*60*2):
         npc.step()
-        print("step: ", i)
-        print("prng: ", int_to_hex_str(lcg.state))
-        print("destX: ", single_to_hex_str(npc.destX))
-        print("destY: ", single_to_hex_str(npc.destY))
-        print("speed: ", single_to_hex_str(npc.walk_speed))
-        print("currentX: ", single_to_hex_str(npc.currentX))
-        print("currentY: ", single_to_hex_str(npc.currentY))
-        print("wait_time: ", single_to_hex_str(npc.wait_time))
-        if i >= 165:
-            input("press ENTER to continue")
-        print()
+        # create_frame(i, npc.currentX, npc.currentY)
+    
+        if i >= 368:
+            print("step: ", i)
+            print("prng: ", int_to_hex_str(lcg.state))
+            print("destX: ", single_to_hex_str(npc.destX))
+            print("destY: ", single_to_hex_str(npc.destY))
+            print("speed: ", single_to_hex_str(npc.walk_speed))
+            print("currentX: ", single_to_hex_str(npc.currentX))
+            print("currentY: ", single_to_hex_str(npc.currentY))
+            try:
+                print("nextX: ", single_to_hex_str(npc.nextX))
+                print("nextY: ", single_to_hex_str(npc.nextY))
+            except:
+                print("nextX: None")
+                print("nextY: None")
+            print("wait_time: ", single_to_hex_str(npc.wait_time))
+        
+            npc.debug = True
 
-    '''
-    npc.step()
-    assert single_to_hex_str(npc.destX) == "40327ef7"
-    assert single_to_hex_str(npc.destY) == "421bcddc"
-    if single_to_hex_str(npc.walk_speed) != "bda585a9":
-        raise ValueError(single_to_hex_str(npc.walk_speed))
+            # input("press ENTER to continue")
+            print()
 
-    for step in paths[0]:
-        npc.step()
-        if single_to_hex_str(npc.currentX).lower() != step[0].lower():
-            raise ValueError("unexpected currentX", single_to_hex_str(npc.currentX), step[0])
-        if single_to_hex_str(npc.currentY).lower() != step[1].lower():
-            raise ValueError("unexpected currentY", single_to_hex_str(npc.currentY), step[1])
-        print("good step!")
-    '''
+    # create_video(fps=18)

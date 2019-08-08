@@ -1,27 +1,48 @@
-"""
-class for simulating NPC interactions with pRNG
-"""
-from numpy import float32
-from conversion import *
-from execution import PPC_executor
+// class for simulating NPC interactions with pRNG
 
-WAITING = 0
-WALKING = 1
+# include PPC_executor
+# include LCG
 
+class NPC {
+    LCG lcg;
+    float destX;
+    float destY;
+    float currentX;
+    float currentY;
+    float nextX;
+    float nextY;
+    float walk_speed;
+    float wait_time;
+	bool walking;
+    bool first_step;
+    bool debug;
 
-class NPC():
+	NPC(LCG lcg, float startX, float startY) {
+		wait_time = 0.0;
+		walk_speed = 0.0;
+		currentX = startX
+		currentY = startY
+		self.nextX = None
+		self.nextY = None
+		self.state = WAITING
+		self.first_step = True
+		self.debug = False
+
+	}
+
+void step () {
+    // simulates one frame of NPC action
+	if (walking) {
+		walk();
+		if (nextX == destX and nextY == destY) {
+			set_wait_time();
+			walking = false;
+		}
+
+			
+	}
+}
     
-    def __init__(self, lcg, startingX, startingY):
-        self.lcg = lcg
-        self.wait_time = float32(0.0)
-        self.walk_speed = float32(0.0)
-        self.currentX = startingX
-        self.currentY = startingY
-        self.nextX = None
-        self.nextY = None
-        self.state = WAITING
-        self.first_step = True
-        self.debug = False
 
     def step(self):
         """
@@ -29,10 +50,7 @@ class NPC():
         """
         if self.state == WALKING:
             self.walk()
-            if (self.nextX == self.destX and
-                    self.nextY == self.destY):
-                self.set_wait_time()
-                self.state = WAITING
+            
 
         elif self.state == WAITING:
             if self.nextX:
@@ -238,3 +256,6 @@ class NPC():
         if self.nextY:
             self.currentY = self.nextY
         self.nextY = calcedY
+
+
+};
