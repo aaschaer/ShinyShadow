@@ -73,8 +73,7 @@ public:
 	void frsp(istringstream& args);
 	void frsqrte(istringstream& args);
 	void fsub(istringstream& args, bool s);
-	void lbz(istringstream& args);
-	void lbzu(istringstream& args);
+	void lbz(istringstream& args, bool u);
 	void lfd(istringstream& args);
 	void lfdx(istringstream& args);
 	void lfs(istringstream& args);
@@ -101,13 +100,11 @@ public:
 	void rlwimi(istringstream& args);
 	void rlwinm(istringstream& args, bool cr);
 	void srawi(istringstream& args);
-	void stb(istringstream& args);
-	void stbu(istringstream& args);
+	void stb(istringstream& args, bool u);
 	void stfd(istringstream& args);
 	void stfs(istringstream& args);
 	void stmw(istringstream& args);
-	void stw(istringstream& args);
-	void stwu(istringstream& args);
+	void stw(istringstream& args, bool u);
 	void sub(istringstream& args, bool cr);
 	void subi(istringstream& args);
 	void subic(istringstream& args, bool cr);

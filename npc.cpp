@@ -1,7 +1,7 @@
 // class for simulating NPC interactions with pRNG
+#include "npc.h"
 
-# include PPC_executor
-# include LCG
+enum states { WAITING = 0, WALKING = 1 };
 
 class NPC {
     LCG lcg;
@@ -30,42 +30,38 @@ class NPC {
 
 	}
 
-void step () {
+void NPC::step() {
     // simulates one frame of NPC action
-	if (walking) {
+	if (state == WALKING) {
 		walk();
 		if (nextX == destX and nextY == destY) {
 			set_wait_time();
 			walking = false;
-		}
-
-			
+		}		
 	}
+    else if (state == WAITING){
+            if (nextX) {
+                currentX = destX;
+                nextX = null;
+            }
+            if nextY {
+                currentY = destY;
+                nextY = null;
+            }
+        }
+            
+            if wait_time <= 0.0 {
+                set_walk_params();
+                walk();
+                state = WALKING;
+            }
 }
     
 
-    def step(self):
-        """
-        simulates one frame of NPC action
-        """
-        if self.state == WALKING:
-            self.walk()
-            
+   
+        
+        
 
-        elif self.state == WAITING:
-            if self.nextX:
-                self.currentX = self.destX
-                self.nextX = None
-            if self.nextY:
-                self.currentY = self.destY
-                self.nextX = None
-
-            if self.wait_time <= float32(0.0):
-                self.set_walk_params()
-                self.walk()
-                self.state = WALKING
-            else:
-                self.wait()
 
     def set_wait_time(self):
         """

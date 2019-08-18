@@ -15,59 +15,66 @@ PPC_exc::PPC_exc(
 
 void PPC_exc::write_int_to_ram(int address, int val) {
 	unsigned char* bytes = reinterpret_cast<unsigned char*>(&val);
-	for (int i = 0; i < sizeof(int); i++) {
+	for (int i = 0; i < 4; i++) {
 		ram[address + i] = bytes[i];
 	}
 }
 
 void PPC_exc::write_single_to_ram(int address, float val) {
 	unsigned char* bytes = reinterpret_cast<unsigned char*>(&val);
-	for (int i = 0; i < sizeof(float); i++) {
+	for (int i = 0; i < 4; i++) {
 		ram[address + i] = bytes[i];
 	}
 }
 
 void PPC_exc::write_double_to_ram(int address, double val) {
 	unsigned char* bytes = reinterpret_cast<unsigned char*>(&val);
-	for (int i = 0; i < sizeof(double); i++) {
+	for (int i = 0; i < 8; i++) {
 		ram[address + i] = bytes[i];
 	}
 }
 
 int PPC_exc::read_int_from_ram(int address) {
 
-	unsigned char bytes[sizeof(int)];
-	for (int i = 0; i < sizeof(int); i++) {
+	unsigned char bytes[4];
+	for (int i = 0; i < 4; i++) {
 		bytes[i] = ram[address + i];
 	}
 	int ret;
-	memcpy(&ret, bytes, sizeof(int));
+	memcpy(&ret, bytes, 4);
 	return ret;
 }
 
 float PPC_exc::read_single_from_ram(int address) {
 
-	unsigned char bytes[sizeof(float)];
-	for (int i = 0; i < sizeof(float); i++) {
+	unsigned char bytes[4];
+	for (int i = 0; i < 4; i++) {
 		bytes[i] = ram[address + i];
 	}
 	float ret;
-	memcpy(&ret, bytes, sizeof(float));
+	memcpy(&ret, bytes, 4);
 	return ret;
 }
 
 double PPC_exc::read_double_from_ram(int address) {
 
-	unsigned char bytes[sizeof(double)];
-	for (int i = 0; i < sizeof(double); i++) {
+	unsigned char bytes[8];
+	for (int i = 0; i < 8; i++) {
 		bytes[i] = ram[address + i];
 	}
 	float ret;
-	memcpy(&ret, bytes, sizeof(double));
+	memcpy(&ret, bytes, 8);
 	return ret;
 }
 
 void PPC_exc::execute() {
+
+	//sanity checks
+	assert (sizeof(unsigned char) == 1)
+	assert (sizeof(int) == 4)
+	assert (sizeof(float) == 4)
+	assert (sizeof(double) == 8)
+
 	while (!end_reached) {
 
 		if (current_address == breakpoint) {
@@ -129,12 +136,11 @@ void PPC_exc::execute() {
 		else if (f_name == "frsqrte") { frsqrte(f_args); }
 		else if (f_name == "fsub") { fsub(f_args, false); }
 		else if (f_name == "fsubs") { fsub(f_args, true); }
-		else if (f_name == "lbz") { lbz(f_args); }
-		else if (f_name == "lbzu") { lbzu(f_args); }
+		else if (f_name == "lbz") { lbz(f_args, false); }
+		else if (f_name == "lbzu") { lbzu(f_args, true); }
 		else if (f_name == "lfd") { lfd(f_args); }
 		else if (f_name == "lfdx") { lfdx(f_args); }
 		else if (f_name == "lfs") { lfs(f_args); }
-		else if (f_name == "lhz") { lhz(f_args); }
 		else if (f_name == "li") { li(f_args); }
 		else if (f_name == "lis") { lis(f_args); }
 		else if (f_name == "lwz") { lwz(f_args); }
@@ -158,13 +164,13 @@ void PPC_exc::execute() {
 		else if (f_name == "rlwinm") { rlwinm(f_args, false); }
 		else if (f_name == "rlwinm.") { rlwinm(f_args, true); }
 		else if (f_name == "srawi") { srawi(f_args); }
-		else if (f_name == "stb") { stb(f_args); }
-		else if (f_name == "stbu") { stbu(f_args); }
+		else if (f_name == "stb") { stb(f_args, false); }
+		else if (f_name == "stbu") { stb(f_args, true); }
 		else if (f_name == "stfd") { stfd(f_args); }
 		else if (f_name == "stfs") { stfs(f_args); }
 		else if (f_name == "stmw") { stmw(f_args); }
-		else if (f_name == "stw") { stw(f_args); }
-		else if (f_name == "stwu") { stwu(f_args); }
+		else if (f_name == "stw") { stw(f_args, false); }
+		else if (f_name == "stwu") { stw(f_args, true); }
 		else if (f_name == "sub") { sub(f_args, false); }
 		else if (f_name == "sub.") { sub(f_args, true); }
 		else if (f_name == "subi") { subi(f_args); }
