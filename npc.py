@@ -127,11 +127,11 @@ class NPC():
             0x8050f0e0: single_to_hex_str(self.currentY),
         }
         starting_registers = {
-            "sp": "8048e5e0",
-            "r13": "80480820",
-            "r30": "809e53d8",
-            "r31": "809e53d8",
-            "f1": single_to_hex_str(prn),
+            "sp": 0x8048e5e0,
+            "r13": 0x80480820,
+            "r30": 0x809e53d8,
+            "r31": 0x809e53d8,
+            "f1": prn,
         }
         exc = PPC_executor(0x80184e64, starting_ram, starting_registers)
         exc.execute()
@@ -147,21 +147,22 @@ class NPC():
         executes logic for walking one frame
         """
         starting_registers = {
-            "lr": "80185afc",
-            "sp": "8048e5b0",
-            "r3": "00000020",
-            "r4": "00000000",
-            "r13": "80480820",
-            "r28": "00000001", # 0x809e53d8, # unused?
-            "r29": "807f1048", # 0x00000002, # unused?
-            "r30": "809e53d8",
-            "r31": "809e53d8",
-            "f1": "3ff0000000000000",
-            "f30": "ffffffffffffffff",
-            "p30": "4070000000000000",
-            "f31": "402d6b5aa0000000", # unused?
-            "p31": "0000000000000000",
+            "lr": 0x80185afc,
+            "sp": 0x8048e5b0,
+            "r3": 0x00000020,
+            "r4": 0x00000000,
+            "r13": 0x80480820,
+            "r28": 0x00000001, # 0x809e53d8, # unused?
+            "r29": 0x807f1048, # 0x00000002, # unused?
+            "r30": 0x809e53d8,
+            "r31": 0x809e53d8,
+            "f1": hex_str_to_double("3ff0000000000000"),
+            "f30": hex_str_to_double("ffffffffffffffff"),
+            "p30": hex_str_to_double("4070000000000000"),
+            "f31": hex_str_to_double("402d6b5aa0000000"), # unused?
+            "p31": hex_str_to_double("0000000000000000"),
         }
+
         starting_ram = {
             # constants
             0x8047b1f8: "00000030",

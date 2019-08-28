@@ -2,9 +2,9 @@
 
 using namespace std;
 
-clas LCG {
+class LCG {
 public:
-    LCG(int seed);
-    int state;
-    float generate();
-}
+	LCG(int seed);
+	unsigned int state;
+	double generate();
+};

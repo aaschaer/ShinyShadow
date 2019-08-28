@@ -1,6 +1,6 @@
 # include "rtoc.h"
 
-map<int, float> single_rtoc = {
+unordered_map<int, float> single_rtoc = {
 	{0x8047D7C4, 2.0},
 	{0x8047D818, 3.1415927410125732},
 	{0x8047D7A0, 0.0},
@@ -17,7 +17,7 @@ map<int, float> single_rtoc = {
 	{0x8047D7C0, 6.28319},
 };
 
-map<int, double> double_rtoc = {
+unordered_map<int, double> double_rtoc = {
 	{0x8047c958, 0.0},
 	{0x8047c7d8, 4503601774854144.0},
 	{0x8047c7d0, 16777216.0},

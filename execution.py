@@ -16,7 +16,7 @@ class PPC_executor():
         self.cr0 = None
         self.cr1 = None
         self.ctr = None
-        self.debug = False
+        self.debug = True
         self.breakpoints = []
 
     def print_line(self):
