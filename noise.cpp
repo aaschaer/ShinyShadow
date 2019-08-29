@@ -10,6 +10,7 @@ PyriteNoise::PyriteNoise(LCG& global_lcg) : lcg(global_lcg) {
 void PyriteNoise::step() {
 
 	for (int i = 0; i < 3; i++) {
+		//cout << "noise called lcg (3)" << endl;
 		double prn = lcg.generate();
 
 		double val = (double)noise_state[i] + (0.5 * prn);
@@ -17,6 +18,7 @@ void PyriteNoise::step() {
 
 		if (noise_state[i] > 1.0) {
 			for (int j = 0; j < 8; j++) {
+				//cout << "noise called lcg (8)" << endl;
 				lcg.generate();
 			}
 			noise_state[i] -= 1.0;

@@ -1,4 +1,7 @@
 #include <chrono>
+#include <fstream>
+
+using namespace std;
 using namespace std::chrono;
 
 #include "lcg.h"
@@ -9,7 +12,7 @@ using namespace std::chrono;
 
 int main() {
 
-	LCG global_lcg = LCG(0x2F0FFF1C);
+	LCG global_lcg = LCG(0x503470D9);
 
 	PyriteNoise noise = PyriteNoise(global_lcg);
 
@@ -91,38 +94,51 @@ int main() {
 	global_ram.write_long(0x809E5BBC, 0x0000002d00000009);
 	global_ram.write_long(0x809E5C98, 0x0000002d0000000a);
 
-	NPC npc0 = NPC(global_lcg, global_ram, 0x809e5d4c, 0x805111d0, 11, 120.0, -580.0);
-	NPC npc1 = NPC(global_lcg, global_ram, 0x809e5c70, 0x80511060, 10, 0.0, -228.0);
-	NPC npc2 = NPC(global_lcg, global_ram, 0x809e5748, 0x805107c0, 4, -80.0, -87.0);
-	NPC npc3 = NPC(global_lcg, global_ram, 0x809e566c, 0x80510650, 3, -150.0, 6.0);
-	NPC npc4 = NPC(global_lcg, global_ram, 0x809e5590, 0x805104e0, 2, 4.0, 70.0);
-	NPC npc5 = NPC(global_lcg, global_ram, 0x809e54b4, 0x80510370, 1, 60.0, 170.0);
+	NPC npc0 = NPC(global_lcg, global_ram, 0x809e5d4c, 0x805111d0, 0xb, 120.0, -580.0);
+	NPC npc1 = NPC(global_lcg, global_ram, 0x809e5c70, 0x80511060, 0xa, 0.0, -228.0);
+	NPC npc2 = NPC(global_lcg, global_ram, 0x809e5748, 0x805107c0, 0x4, -80.0, -87.0);
+	NPC npc3 = NPC(global_lcg, global_ram, 0x809e566c, 0x80510650, 0x3, -150.0, 6.0);
+	NPC npc4 = NPC(global_lcg, global_ram, 0x809e5590, 0x805104e0, 0x2, 4.0, 70.0);
+	NPC npc5 = NPC(global_lcg, global_ram, 0x809e54b4, 0x80510370, 0x1, 60.0, 170.0);
 
+	ofstream csvfile;
+	csvfile.open("out.csv");
 	auto start = high_resolution_clock::now();
-	for (int frame = 0; frame < 5; frame++) {
+	for (int frame = 0; frame < 190; frame++) {
 
-		//cout << "frame " << dec << frame << endl;
+		
 
+		if (frame == 2) {
+			noise.step();
+		}
+		else if (frame > 2) {
+			noise.step();
+			noise.step();
+		}
 		npc0.step();
 		npc1.step();
 		npc2.step();
 		npc3.step();
 		npc4.step();
 		npc5.step();
-		if (frame >= 2) {
-			noise.step();
+		
+		if (frame >= 180) {
+			cout << "frame " << dec << frame << endl;
+			//csvfile << npc0.currentX << "," << npc0.currentY << endl;
+			cout << "pRNG: " << hex << global_lcg.state << endl;
+			npc0.print_state();
+			noise.print_state();
+			cout << endl;
+
+			//string enter;
+			//getline(cin, enter);
 		}
-
-		cout << hex << global_lcg.state << endl;
-		npc0.print_state();
-		noise.print_state();
-
-		//string enter;
-		//getline(cin, enter);
 	}
 	auto stop = high_resolution_clock::now();
 	auto duration = duration_cast<seconds>(stop - start);
-	cout << duration.count() << endl;
+	cout << "ran in " << duration.count() << " secods" << endl;
+	csvfile.close();
+	return 0;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

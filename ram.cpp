@@ -61,6 +61,7 @@ int RAM::read_int(int address) {
 	catch (...) {
 		cout << hex << address;
 		throw address;
+
 	}
 }
 

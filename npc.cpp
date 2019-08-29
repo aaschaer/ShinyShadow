@@ -50,18 +50,19 @@ NPC::NPC(
 
 void NPC::step() {
     // simulates one frame of NPC action
-	if (state == FIRST_WALK) {
+	if (state == WALKING) {
 		// calc the next position in the walk
 		pair <float, float> calced;
-		if (first_step) {
+		if (step_count == 0) {
 			calced = calc_walk(currentX, currentY);
 			nextX = calced.first;
 			nextY = calced.second;
-			first_step = false;
+			step_count++;
 		}
 		calced = calc_walk(nextX, nextY);
 		float calcedX = calced.first;
 		float calcedY = calced.second;
+		step_count++;
 
 		// check if we would pass the destination next step and if so start stopping
 		if ((nextX <= destX and destX <= calcedX) or
@@ -75,11 +76,12 @@ void NPC::step() {
 		nextY = calcedY;
 	}
 
-	else if (state == WALKING) {
+	else if (state == FIRST_WALK) {
 		// calc the next position in the walk
 		pair <float, float> calced = calc_walk(currentX, currentY);
 		float calcedX = calced.first;
 		float calcedY = calced.second;
+		step_count++;
 
 		// check if we will pass the destination now and if so start stopping
 		if ((currentX <= destX and destX <= calcedX) or
@@ -94,6 +96,7 @@ void NPC::step() {
 	else if (state == STOPPING) {
 		currentX = destX;
 		currentY = destY;
+		step_count = 0;
 		wait();
 		state = WAITING;
 	}
@@ -103,6 +106,7 @@ void NPC::step() {
 			set_walk_params();
 			if (first_step) {
 				state = FIRST_WALK;
+				first_step = false;
 			}
 			else {
 				state = WALKING;
@@ -114,6 +118,8 @@ void NPC::step() {
 
 void NPC::set_wait_time() {
 	//simulates logic for selecting a pseudo random wait time
+	//cout << "npc" << hex << npc_number << " called lcg in wait" << endl;
+	//cout << "npc" << hex << npc_number << " called lcg in wait" << endl;
 	double prn1 = lcg.generate();
 	double prn2 = lcg.generate();
 	double rand = (prn1 + prn2) - 1.0; // constant from rtoc
@@ -142,6 +148,7 @@ void NPC::set_walk_params() {
 		{"r31", npc_address},
 	};
 
+	//cout << "npc" << hex << npc_number << " called lcg set_walk_params" << endl;
 	double prn = lcg.generate();
 	unordered_map<string, double> starting_double_registers = {
 		{"f1", prn},
@@ -176,9 +183,21 @@ pair <float, float> NPC::calc_walk(float givenX, float givenY) {
 	ram.write_single(pos_address + 24, givenX);
 	ram.write_single(pos_address + 32, givenY);
 	
-    // strange out of bounds value, seems related to how many steps taken in walk?
-	if (first_step) {
-		ram.write_int(0xe0000054, 0x00000001);
+    //strange out of bounds value
+	//worried this may be incorrect off emulator
+	if (state == FIRST_WALK) {
+		if (step_count == 0){ 
+			ram.write_int(0xe0000054, 0x00000001); 
+		}
+		else if (step_count == 1) {
+			ram.write_int(0xe0000054, 0x00000004);
+		}
+		else if (step_count == 2) {
+			ram.write_int(0xe0000054, 0x00000001);
+		}
+		else {
+			ram.write_int(0xe0000054, 0x00000002);
+		}
 	}
     else {
 		ram.write_int(0xe0000054, 0x00000002);
@@ -208,6 +227,4 @@ void NPC::print_state() {
 
 	memcpy(&val, &wait_time, 4);
 	cout << "wait_time: " << hex << val << endl;
-
-	cout << "\n";
 }
